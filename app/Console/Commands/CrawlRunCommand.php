@@ -22,9 +22,12 @@ class CrawlRunCommand extends Command
             return self::SUCCESS;
         }
 
+        $categoryUrls = implode(',', config('crawler.category_urls'));
+
         $crawlRun = CrawlRun::query()->create([
             'started_at' => now(),
             'status' => CrawlRun::STATUS_RUNNING,
+            'category_url' => $categoryUrls,
         ]);
 
         $this->info("Started crawl run #{$crawlRun->id}");
@@ -38,7 +41,7 @@ class CrawlRunCommand extends Command
 
         $env = [
             'CRAWLER_ENABLED' => 'true',
-            'CRAWLER_CATEGORY_URLS' => implode(',', config('crawler.category_urls')),
+            'CRAWLER_CATEGORY_URLS' => $categoryUrls,
             'CRAWLER_OUTPUT_DIR' => $outputPath,
             'CRAWLER_DEEP_CRAWL' => config('crawler.deep_crawl') ? 'true' : 'false',
             'CRAWLER_CONCURRENCY' => (string) config('crawler.concurrency'),

@@ -8,6 +8,8 @@ Route::inertia('/', 'welcome')->name('home');
 
 Route::get('/img-proxy', [ImageProxyController::class, 'show'])->name('img.proxy');
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
+Route::get('/crawl-runs', [\App\Http\Controllers\CrawlRunController::class, 'index'])->name('crawl-runs.index');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');

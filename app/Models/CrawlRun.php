@@ -17,6 +17,7 @@ use Illuminate\Support\Carbon;
  * @property int $products_found
  * @property int $errors_count
  * @property array<int, mixed>|null $error_log
+ * @property string|null $category_url
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
@@ -28,6 +29,7 @@ use Illuminate\Support\Carbon;
     'products_found',
     'errors_count',
     'error_log',
+    'category_url',
 ])]
 class CrawlRun extends Model
 {

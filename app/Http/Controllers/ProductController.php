@@ -8,11 +8,11 @@ use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Inertia\Response;
+use Inertia\Response as InertiaResponse;
 
 class ProductController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request): InertiaResponse
     {
         $search = $request->string('search')->trim()->toString();
         $categoryId = $request->integer('category_id') ?: null;
@@ -70,6 +70,34 @@ class ProductController extends Controller
             'stats' => [
                 'totalProducts' => Product::query()->count(),
                 'activeProducts' => Product::query()->where('is_active', true)->count(),
+            ],
+        ]);
+    }
+
+    public function show(Product $product): InertiaResponse
+    {
+        $product->load(['category', 'latestPriceSnapshot']);
+
+        $snapshots = $product->priceSnapshots()
+            ->orderBy('captured_at')
+            ->get(['captured_at', 'price_bgn', 'price_eur', 'in_stock'])
+            ->map(fn (PriceSnapshot $s) => [
+                'date' => $s->captured_at->format('Y-m-d H:i'),
+                'priceBgn' => $s->price_bgn ? (float) $s->price_bgn : null,
+                'priceEur' => $s->price_eur ? (float) $s->price_eur : null,
+                'inStock' => $s->in_stock,
+            ]);
+
+        $prices = $snapshots->pluck('priceBgn')->filter();
+
+        return Inertia::render('products/show', [
+            'product' => $this->transformProduct($product),
+            'history' => $snapshots,
+            'summary' => [
+                'current' => $snapshots->last()['priceBgn'] ?? null,
+                'lowest' => $prices->min(),
+                'highest' => $prices->max(),
+                'dataPoints' => $snapshots->count(),
             ],
         ]);
     }

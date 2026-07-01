@@ -1,10 +1,11 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { ExternalLink, Package, RefreshCw, Search } from 'lucide-react';
-import { FormEvent, useState, useCallback } from 'react';
+import { FormEvent, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 type ProductItem = {
     id: number;
@@ -184,17 +185,32 @@ export default function ProductsIndex({
                     </Card>
                 </div>
 
-                <form onSubmit={submitSearch} className="flex gap-2">
+                <form onSubmit={submitSearch} className="flex flex-wrap gap-2">
                     <div className="relative max-w-md flex-1">
                         <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
                         <Input
                             value={search}
                             onChange={(event) => setSearch(event.target.value)}
-                            placeholder="Search by name, SKU or brand..."
+                            placeholder="Търси по име, SKU или марка..."
                             className="pl-9"
                         />
                     </div>
-                    <Button type="submit">Search</Button>
+                    <Select
+                        value={filters.sort}
+                        onValueChange={(value) =>
+                            router.get('/products', { search, sort: value }, { preserveState: true, replace: true })
+                        }
+                    >
+                        <SelectTrigger className="w-44">
+                            <SelectValue placeholder="Сортирай" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="name">По азбучен ред</SelectItem>
+                            <SelectItem value="price_asc">Цена: ниска → висока</SelectItem>
+                            <SelectItem value="price_desc">Цена: висока → ниска</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <Button type="submit">Търси</Button>
                 </form>
 
                 {products.data.length === 0 ? (
@@ -213,15 +229,19 @@ export default function ProductsIndex({
                 ) : (
                     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                         {products.data.map((product) => (
-                            <Card key={product.id} className="overflow-hidden py-0">
-                                <div className="bg-muted/30 flex h-44 items-center justify-center p-4">
-                                    <ProductImage url={product.imageUrl} proxyUrl={product.imageProxyUrl} name={product.name} />
-                                </div>
+                            <Card key={product.id} className="overflow-hidden py-0 transition-shadow hover:shadow-md">
+                                <Link href={`/products/${product.id}`} className="block">
+                                    <div className="bg-muted/30 flex h-44 items-center justify-center p-4">
+                                        <ProductImage url={product.imageUrl} proxyUrl={product.imageProxyUrl} name={product.name} />
+                                    </div>
+                                </Link>
                                 <CardHeader className="gap-2 px-4 pt-4 pb-2">
                                     <div className="flex items-start justify-between gap-2">
-                                        <CardTitle className="line-clamp-2 text-base leading-snug">
-                                            {product.name}
-                                        </CardTitle>
+                                        <Link href={`/products/${product.id}`} className="hover:underline">
+                                            <CardTitle className="line-clamp-2 text-base leading-snug">
+                                                {product.name}
+                                            </CardTitle>
+                                        </Link>
                                         <a
                                             href={product.url}
                                             target="_blank"
@@ -246,7 +266,7 @@ export default function ProductsIndex({
                                         </p>
                                     </div>
                                     <Badge variant={product.inStock ? 'default' : 'secondary'}>
-                                        {product.inStock ? 'In stock' : 'Out of stock'}
+                                        {product.inStock ? 'В наличност' : 'Изчерпан'}
                                     </Badge>
                                 </CardContent>
                             </Card>
