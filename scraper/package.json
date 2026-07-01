@@ -1,0 +1,23 @@
+{
+  "name": "technopolis-scraper",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "crawl": "tsx src/index.ts",
+    "inspect": "tsx src/inspect.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "playwright": "^1.51.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.5",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.9"
+  }
+}

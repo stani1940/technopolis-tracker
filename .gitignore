@@ -14,7 +14,10 @@
 .DS_Store
 .env
 .env.backup
-.env.production
+/crawl_output/
+/scraper/.env
+/scraper/node_modules/
+/storage/app/private/img_cache/
 .phpactor.json
 .phpunit.result.cache
 Homestead.json

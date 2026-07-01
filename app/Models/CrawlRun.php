@@ -1,0 +1,56 @@
+<?php
+
+namespace App\Models;
+
+use Database\Factories\CrawlRunFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
+
+/**
+ * @property int $id
+ * @property Carbon $started_at
+ * @property Carbon|null $finished_at
+ * @property string $status
+ * @property int $pages_crawled
+ * @property int $products_found
+ * @property int $errors_count
+ * @property array<int, mixed>|null $error_log
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ */
+#[Fillable([
+    'started_at',
+    'finished_at',
+    'status',
+    'pages_crawled',
+    'products_found',
+    'errors_count',
+    'error_log',
+])]
+class CrawlRun extends Model
+{
+    /** @use HasFactory<CrawlRunFactory> */
+    use HasFactory;
+
+    public const STATUS_PENDING = 'pending';
+
+    public const STATUS_RUNNING = 'running';
+
+    public const STATUS_COMPLETED = 'completed';
+
+    public const STATUS_FAILED = 'failed';
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'started_at' => 'datetime',
+            'finished_at' => 'datetime',
+            'error_log' => 'array',
+        ];
+    }
+}
