@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { Activity, BookOpen, FolderGit2, LayoutGrid, PackageSearch } from 'lucide-react';
+import { Activity, BookOpen, FolderGit2, Globe, LayoutGrid, PackageSearch, Settings } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -34,6 +34,14 @@ const mainNavItems: NavItem[] = [
     },
 ];
 
+const adminNavItems: NavItem[] = [
+    {
+        title: 'Manage Sites',
+        href: '/admin/sites',
+        icon: Globe,
+    },
+];
+
 const footerNavItems: NavItem[] = [
     {
         title: 'Repository',
@@ -63,7 +71,8 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain items={mainNavItems} label="Platform" />
+                <NavMain items={adminNavItems} label="Admin" />
             </SidebarContent>
 
             <SidebarFooter>

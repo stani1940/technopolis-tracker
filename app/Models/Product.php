@@ -13,6 +13,7 @@ use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
+ * @property int|null $site_id
  * @property string $technopolis_sku
  * @property string $name
  * @property string $slug
@@ -27,6 +28,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  */
 #[Fillable([
+    'site_id',
     'technopolis_sku',
     'name',
     'slug',
@@ -53,6 +55,11 @@ class Product extends Model
             'last_seen_at' => 'datetime',
             'is_active' => 'boolean',
         ];
+    }
+
+    public function site(): BelongsTo
+    {
+        return $this->belongsTo(Site::class);
     }
 
     public function category(): BelongsTo

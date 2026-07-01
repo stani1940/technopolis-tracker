@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\CrawlRun;
+use App\Models\Site;
 use App\Services\Crawler\CrawlImportService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Process;
@@ -10,7 +11,7 @@ use Illuminate\Support\Str;
 
 class CrawlRunCommand extends Command
 {
-    protected $signature = 'crawl:run {--dry-run : Run scraper only, skip database import}';
+    protected $signature = 'crawl:run {--site= : Site slug to crawl (default: first active site)} {--dry-run : Run scraper only, skip database import}';
 
     protected $description = 'Run the Playwright scraper and import results';
 
@@ -22,15 +23,24 @@ class CrawlRunCommand extends Command
             return self::SUCCESS;
         }
 
-        $categoryUrls = implode(',', config('crawler.category_urls'));
+        // Resolve site: use --site option or fall back to first active site
+        $siteSlug = $this->option('site');
+        $site = $siteSlug
+            ? Site::query()->where('slug', $siteSlug)->firstOrFail()
+            : Site::query()->where('is_active', true)->first();
+
+        $categoryUrls = $site
+            ? implode(',', $site->getCategoryUrls())
+            : implode(',', config('crawler.category_urls'));
 
         $crawlRun = CrawlRun::query()->create([
+            'site_id' => $site?->id,
             'started_at' => now(),
             'status' => CrawlRun::STATUS_RUNNING,
             'category_url' => $categoryUrls,
         ]);
 
-        $this->info("Started crawl run #{$crawlRun->id}");
+        $this->info("Started crawl run #{$crawlRun->id}" . ($site ? " for site \"{$site->name}\"" : ''));
 
         $scraperPath = config('crawler.scraper_path');
         $outputPath = config('crawler.output_path');
@@ -100,7 +110,7 @@ class CrawlRunCommand extends Command
             return self::SUCCESS;
         }
 
-        $stats = $importService->importFile($latestFile, $crawlRun);
+        $stats = $importService->importFile($latestFile, $crawlRun, $site);
 
         $this->info("Imported {$stats['products']} products into the database.");
 

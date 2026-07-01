@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\CrawlRun;
 use App\Models\PriceSnapshot;
 use App\Models\Product;
+use App\Models\Site;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -16,7 +17,7 @@ class CrawlImportService
     /**
      * @return array{products: int, snapshots: int, categories: int}
      */
-    public function importFile(string $path, ?CrawlRun $crawlRun = null): array
+    public function importFile(string $path, ?CrawlRun $crawlRun = null, ?Site $site = null): array
     {
         if (! is_readable($path)) {
             throw new RuntimeException("Crawl output file is not readable: {$path}");
@@ -55,7 +56,7 @@ class CrawlImportService
                     continue;
                 }
 
-                $imported = $this->importProduct($payload['product'] ?? []);
+                $imported = $this->importProduct($payload['product'] ?? [], $site);
                 $stats['products'] += $imported['products'];
                 $stats['snapshots'] += $imported['snapshots'];
                 $stats['categories'] += $imported['categories'];
@@ -71,7 +72,7 @@ class CrawlImportService
      * @param  array<string, mixed>  $lines
      * @return array{products: int, snapshots: int, categories: int}
      */
-    public function importPayload(array $lines, ?CrawlRun $crawlRun = null): array
+    public function importPayload(array $lines, ?CrawlRun $crawlRun = null, ?Site $site = null): array
     {
         $stats = [
             'products' => 0,
@@ -90,7 +91,7 @@ class CrawlImportService
                 continue;
             }
 
-            $imported = $this->importProduct($payload['product'] ?? []);
+            $imported = $this->importProduct($payload['product'] ?? [], $site);
             $stats['products'] += $imported['products'];
             $stats['snapshots'] += $imported['snapshots'];
             $stats['categories'] += $imported['categories'];
@@ -103,11 +104,11 @@ class CrawlImportService
      * @param  array<string, mixed>  $data
      * @return array{products: int, snapshots: int, categories: int}
      */
-    public function importProduct(array $data): array
+    public function importProduct(array $data, ?Site $site = null): array
     {
-        return DB::transaction(function () use ($data) {
+        return DB::transaction(function () use ($data, $site) {
             $categoryData = is_array($data['category'] ?? null) ? $data['category'] : [];
-            $category = $this->upsertCategory($categoryData);
+            $category = $this->upsertCategory($categoryData, $site);
             $capturedAt = $this->parseCapturedAt($data['capturedAt'] ?? null);
 
             $product = Product::query()->firstOrNew([
@@ -117,6 +118,7 @@ class CrawlImportService
             $isNew = ! $product->exists;
 
             $product->fill([
+                'site_id' => $site?->id ?? $product->site_id,
                 'name' => (string) ($data['name'] ?? 'Unknown product'),
                 'slug' => (string) ($data['slug'] ?? Str::slug((string) ($data['name'] ?? 'product'))),
                 'url' => (string) ($data['url'] ?? ''),
@@ -179,7 +181,7 @@ class CrawlImportService
     /**
      * @param  array<string, mixed>  $data
      */
-    private function upsertCategory(array $data): ?Category
+    private function upsertCategory(array $data, ?Site $site = null): ?Category
     {
         $url = (string) ($data['url'] ?? '');
 
@@ -190,6 +192,7 @@ class CrawlImportService
         return Category::query()->updateOrCreate(
             ['url' => $url],
             [
+                'site_id' => $site?->id,
                 'technopolis_category_id' => $data['technopolisCategoryId'] ?? null,
                 'name' => (string) ($data['name'] ?? 'Unknown category'),
                 'slug' => (string) ($data['slug'] ?? Str::slug((string) ($data['name'] ?? 'category'))),

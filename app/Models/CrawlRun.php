@@ -6,6 +6,7 @@ use Database\Factories\CrawlRunFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
@@ -17,11 +18,13 @@ use Illuminate\Support\Carbon;
  * @property int $products_found
  * @property int $errors_count
  * @property array<int, mixed>|null $error_log
+ * @property int|null $site_id
  * @property string|null $category_url
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
 #[Fillable([
+    'site_id',
     'started_at',
     'finished_at',
     'status',
@@ -35,6 +38,11 @@ class CrawlRun extends Model
 {
     /** @use HasFactory<CrawlRunFactory> */
     use HasFactory;
+
+    public function site(): BelongsTo
+    {
+        return $this->belongsTo(Site::class);
+    }
 
     public const STATUS_PENDING = 'pending';
 
