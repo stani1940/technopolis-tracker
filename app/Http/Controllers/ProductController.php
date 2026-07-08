@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CrawlRun;
 use App\Models\PriceSnapshot;
 use App\Models\Product;
+use App\Models\Site;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -16,10 +17,11 @@ class ProductController extends Controller
     {
         $search = $request->string('search')->trim()->toString();
         $categoryId = $request->integer('category_id') ?: null;
+        $siteId = $request->integer('site_id') ?: null;
         $sort = $request->string('sort')->toString() ?: 'name';
 
         $products = Product::query()
-            ->with(['category', 'latestPriceSnapshot'])
+            ->with(['category', 'latestPriceSnapshot', 'site'])
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($query) use ($search) {
                     $query->where('name', 'like', "%{$search}%")
@@ -28,6 +30,7 @@ class ProductController extends Controller
                 });
             })
             ->when($categoryId, fn ($query) => $query->where('category_id', $categoryId))
+            ->when($siteId, fn ($query) => $query->where('site_id', $siteId))
             ->when($sort === 'price_asc', function ($query) {
                 $query->orderBy(
                     PriceSnapshot::select('price_bgn')
@@ -53,9 +56,18 @@ class ProductController extends Controller
 
         return Inertia::render('products/index', [
             'products' => $products,
+            'sites' => Site::query()
+                ->orderBy('name')
+                ->get(['id', 'name', 'slug'])
+                ->map(fn (Site $site) => [
+                    'id' => $site->id,
+                    'name' => $site->name,
+                    'slug' => $site->slug,
+                ]),
             'filters' => [
                 'search' => $search,
                 'category_id' => $categoryId,
+                'site_id' => $siteId,
                 'sort' => $sort,
             ],
             'crawlStatus' => $latestCrawlRun ? [
@@ -161,6 +173,9 @@ class ProductController extends Controller
                 ? url('/img-proxy?url='.urlencode($product->image_url))
                 : null,
             'category' => $product->category?->only(['id', 'name', 'slug']),
+            'site' => $product->relationLoaded('site') && $product->site
+                ? $product->site->only(['id', 'name', 'slug'])
+                : null,
             'currentPriceBgn' => $latest?->price_bgn,
             'currentPriceEur' => $latest?->price_eur,
             'inStock' => $latest?->in_stock,

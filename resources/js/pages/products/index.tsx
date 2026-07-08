@@ -16,10 +16,17 @@ type ProductItem = {
     imageUrl: string | null;
     imageProxyUrl: string | null;
     category: { id: number; name: string; slug: string } | null;
+    site: { id: number; name: string; slug: string } | null;
     currentPriceBgn: string | null;
     currentPriceEur: string | null;
     inStock: boolean | null;
     lastSeenAt: string | null;
+};
+
+type SiteOption = {
+    id: number;
+    name: string;
+    slug: string;
 };
 
 type PaginatedProducts = {
@@ -42,9 +49,11 @@ type CrawlStatus = {
 
 type PageProps = {
     products: PaginatedProducts;
+    sites: SiteOption[];
     filters: {
         search: string;
         category_id: number | null;
+        site_id: number | null;
         sort: string;
     };
     crawlStatus: CrawlStatus;
@@ -100,20 +109,34 @@ function statusVariant(status: string): 'default' | 'secondary' | 'destructive' 
 
 export default function ProductsIndex({
     products,
+    sites,
     filters,
     crawlStatus,
     stats,
 }: PageProps) {
     const [search, setSearch] = useState(filters.search);
 
+    function applyFilters(overrides: Record<string, string | number | null> = {}) {
+        const params: Record<string, string | number> = {};
+        const merged = {
+            search,
+            sort: filters.sort,
+            site_id: filters.site_id,
+            ...overrides,
+        };
+
+        for (const [key, value] of Object.entries(merged)) {
+            if (value !== null && value !== undefined && value !== '') {
+                params[key] = value;
+            }
+        }
+
+        router.get('/products', params, { preserveState: true, replace: true });
+    }
+
     function submitSearch(event: FormEvent) {
         event.preventDefault();
-
-        router.get(
-            '/products',
-            { search, sort: filters.sort },
-            { preserveState: true, replace: true },
-        );
+        applyFilters();
     }
 
     return (
@@ -123,14 +146,13 @@ export default function ProductsIndex({
             <div className="flex flex-col gap-6 p-4">
                 <div className="flex flex-col gap-2">
                     <h1 className="text-2xl font-semibold tracking-tight">
-                        Technopolis Price Tracker
+                        Price Tracker
                     </h1>
                     <p className="text-muted-foreground text-sm">
-                        Scraped product prices from technopolis.bg. Run{' '}
+                        Проследени цени от {sites.map((s) => s.name).join(', ')}. Обнови с{' '}
                         <code className="rounded bg-muted px-1.5 py-0.5 text-xs">
-                            php artisan crawl:run
-                        </code>{' '}
-                        to refresh data.
+                            php artisan crawl:run --site=slug
+                        </code>
                     </p>
                 </div>
 
@@ -196,10 +218,26 @@ export default function ProductsIndex({
                         />
                     </div>
                     <Select
-                        value={filters.sort}
+                        value={filters.site_id ? String(filters.site_id) : 'all'}
                         onValueChange={(value) =>
-                            router.get('/products', { search, sort: value }, { preserveState: true, replace: true })
+                            applyFilters({ site_id: value === 'all' ? null : Number(value) })
                         }
+                    >
+                        <SelectTrigger className="w-44">
+                            <SelectValue placeholder="Всички сайтове" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Всички сайтове</SelectItem>
+                            {sites.map((site) => (
+                                <SelectItem key={site.id} value={String(site.id)}>
+                                    {site.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <Select
+                        value={filters.sort}
+                        onValueChange={(value) => applyFilters({ sort: value })}
                     >
                         <SelectTrigger className="w-44">
                             <SelectValue placeholder="Сортирай" />
@@ -251,7 +289,12 @@ export default function ProductsIndex({
                                             <ExternalLink className="size-4" />
                                         </a>
                                     </div>
-                                    <CardDescription className="flex flex-wrap gap-2">
+                                    <CardDescription className="flex flex-wrap items-center gap-2">
+                                        {product.site && (
+                                            <Badge variant="outline" className="text-xs font-normal">
+                                                {product.site.name}
+                                            </Badge>
+                                        )}
                                         <span>SKU {product.technopolisSku}</span>
                                         {product.brand && <span>• {product.brand}</span>}
                                     </CardDescription>
