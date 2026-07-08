@@ -2,7 +2,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { chromium, type Browser, type Page } from 'playwright';
 import { config, randomDelayMs, sleep } from './config.js';
-import { dismissCookieBanner, extractProductsLive, waitForListing } from './extract.js';
+import { resolveAdapter, type SiteAdapter } from './sites/index.js';
 import type { CrawlError, CrawlLine, CrawlSummary, CrawledProduct } from './types.js';
 
 const MAX_RETRIES = 3;
@@ -14,7 +14,7 @@ async function launchBrowser(): Promise<Browser> {
     });
 }
 
-async function navigateWithRetry(page: Page, url: string): Promise<void> {
+async function navigateWithRetry(page: Page, url: string, adapter: SiteAdapter): Promise<void> {
     let lastError: unknown;
 
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
@@ -28,8 +28,8 @@ async function navigateWithRetry(page: Page, url: string): Promise<void> {
                 throw new Error(`HTTP ${response.status()} for ${url}`);
             }
 
-            await waitForListing(page);
-            await dismissCookieBanner(page);
+            await adapter.waitForListing(page);
+            await adapter.dismissBanners(page);
 
             return;
         } catch (error) {
@@ -42,31 +42,6 @@ async function navigateWithRetry(page: Page, url: string): Promise<void> {
     }
 
     throw lastError;
-}
-
-async function findNextPageUrl(page: Page, currentUrl: string): Promise<string | null> {
-    // Use the actual page URL (after any redirects) as base for resolving relative hrefs
-    const pageUrl = page.url() || currentUrl;
-
-    // cx-pagination uses a.next; when on last page the link gets class "disabled"
-    const nextLink = page
-        .locator('cx-pagination a.next:not(.disabled), a[rel="next"]:not(.disabled)')
-        .first();
-
-    if (!(await nextLink.isVisible({ timeout: 2000 }).catch(() => false))) {
-        return null;
-    }
-
-    const href = await nextLink.getAttribute('href');
-
-    if (!href) {
-        return null;
-    }
-
-    const nextUrl = new URL(href, pageUrl).toString();
-    const resolvedCurrent = new URL(pageUrl).toString();
-
-    return nextUrl === resolvedCurrent ? null : nextUrl;
 }
 
 export async function crawlCategoryUrls(categoryUrls: string[]): Promise<{ products: CrawledProduct[]; summary: CrawlSummary }> {
@@ -88,8 +63,11 @@ export async function crawlCategoryUrls(categoryUrls: string[]): Promise<{ produ
 
     try {
         for (const categoryUrl of categoryUrls) {
+            const adapter = resolveAdapter(categoryUrl);
             let currentUrl: string | null = categoryUrl;
             let pageIndex = 0;
+
+            console.error(`[crawl] using adapter "${adapter.slug}" for ${categoryUrl}`);
 
             while (currentUrl) {
                 pageIndex++;
@@ -100,11 +78,11 @@ export async function crawlCategoryUrls(categoryUrls: string[]): Promise<{ produ
                 }
 
                 try {
-                    await navigateWithRetry(page, currentUrl);
+                    await navigateWithRetry(page, currentUrl, adapter);
                     await sleep(randomDelayMs());
 
                     const capturedAt = new Date().toISOString();
-                    const pageProducts = await extractProductsLive(page, currentUrl, capturedAt);
+                    const pageProducts = await adapter.extractProducts(page, currentUrl, capturedAt);
 
                     for (const product of pageProducts) {
                         products.set(product.technopolisSku, product);
@@ -118,7 +96,7 @@ export async function crawlCategoryUrls(categoryUrls: string[]): Promise<{ produ
                     break;
                 }
 
-                currentUrl = await findNextPageUrl(page, currentUrl);
+                currentUrl = await adapter.findNextPageUrl(page, currentUrl);
 
                 if (currentUrl) {
                     await sleep(randomDelayMs());

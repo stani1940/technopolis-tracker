@@ -33,14 +33,15 @@ class SiteSeeder extends Seeder
                 'slug' => 'technomarket',
                 'base_url' => 'https://www.technomarket.bg',
                 'logo_url' => null,
-                'is_active' => false,
+                'is_active' => true,
                 'scraper_config' => [
                     'category_urls' => [
-                        'https://www.technomarket.bg/promo/',
+                        'https://www.technomarket.bg/promocii/ot-broshurata',
                     ],
+                    'product_box_selector' => 'tm-product-item[data-product]',
+                    'pagination_selector' => '.filter-footer .pages a:has(.page-arrowN):not(.disabled)',
                     'min_delay_ms' => 1500,
                     'max_delay_ms' => 3000,
-                    'notes' => 'Selectors need to be configured after inspection.',
                 ],
             ],
         ];

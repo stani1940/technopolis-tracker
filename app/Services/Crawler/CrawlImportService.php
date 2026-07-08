@@ -112,6 +112,7 @@ class CrawlImportService
             $capturedAt = $this->parseCapturedAt($data['capturedAt'] ?? null);
 
             $product = Product::query()->firstOrNew([
+                'site_id' => $site?->id,
                 'technopolis_sku' => (string) ($data['technopolisSku'] ?? ''),
             ]);
 

@@ -10,7 +10,10 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ImageProxyController extends Controller
 {
-    private const ALLOWED_HOST = 'api.technopolis.bg';
+    private const ALLOWED_HOSTS = [
+        'api.technopolis.bg',
+        'cdn.technomarket.bg',
+    ];
 
     private const CACHE_DISK = 'local';
 
@@ -43,10 +46,15 @@ class ImageProxyController extends Controller
             }
         }
 
-        // Fetch from origin
+        // Fetch from origin with a referer matching the image's own site
+        $host = parse_url($url, PHP_URL_HOST);
+        $referer = str_contains((string) $host, 'technomarket')
+            ? 'https://www.technomarket.bg/'
+            : 'https://www.technopolis.bg/';
+
         $response = Http::withHeaders([
             'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-            'Referer' => 'https://www.technopolis.bg/',
+            'Referer' => $referer,
             'Accept' => 'image/webp,image/apng,image/*,*/*;q=0.8',
         ])->timeout(10)->get($url);
 
@@ -81,6 +89,6 @@ class ImageProxyController extends Controller
 
         $parsed = parse_url($url);
 
-        return isset($parsed['host']) && $parsed['host'] === self::ALLOWED_HOST;
+        return isset($parsed['host']) && in_array($parsed['host'], self::ALLOWED_HOSTS, true);
     }
 }
