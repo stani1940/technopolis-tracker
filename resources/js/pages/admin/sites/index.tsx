@@ -2,7 +2,13 @@ import { Head, Link, router } from '@inertiajs/react';
 import { Edit, Globe, Plus, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 
 type SiteItem = {
     id: number;
@@ -25,7 +31,14 @@ type PageProps = {
 
 export default function AdminSitesIndex({ sites, flash }: PageProps) {
     function deleteSite(site: SiteItem) {
-        if (!confirm(`Delete "${site.name}"? This will not delete its products.`)) return;
+        if (
+            !confirm(
+                `Delete "${site.name}"? This will not delete its products.`,
+            )
+        ) {
+return;
+}
+
         router.delete(`/admin/sites/${site.id}`);
     }
 
@@ -33,17 +46,19 @@ export default function AdminSitesIndex({ sites, flash }: PageProps) {
         <>
             <Head title="Admin — Sites" />
 
-            <div className="flex flex-col gap-6 p-4 max-w-4xl mx-auto">
+            <div className="mx-auto flex max-w-4xl flex-col gap-6 p-4">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-semibold tracking-tight">Tracked Sites</h1>
-                        <p className="text-muted-foreground text-sm mt-0.5">
+                        <h1 className="text-2xl font-semibold tracking-tight">
+                            Tracked Sites
+                        </h1>
+                        <p className="mt-0.5 text-sm text-muted-foreground">
                             Manage the e-commerce sites to scrape prices from.
                         </p>
                     </div>
                     <Button asChild>
                         <Link href="/admin/sites/create">
-                            <Plus className="size-4 mr-2" />
+                            <Plus className="mr-2 size-4" />
                             Add Site
                         </Link>
                     </Button>
@@ -68,17 +83,25 @@ export default function AdminSitesIndex({ sites, flash }: PageProps) {
                                 <CardHeader className="pb-3">
                                     <div className="flex items-start justify-between gap-4">
                                         <div className="flex items-center gap-3">
-                                            <div className="bg-muted flex size-10 items-center justify-center rounded-md">
+                                            <div className="flex size-10 items-center justify-center rounded-md bg-muted">
                                                 <Globe className="size-5 text-muted-foreground" />
                                             </div>
                                             <div>
                                                 <CardTitle className="flex items-center gap-2 text-base">
                                                     {site.name}
-                                                    <Badge variant={site.is_active ? 'default' : 'secondary'}>
-                                                        {site.is_active ? 'Active' : 'Inactive'}
+                                                    <Badge
+                                                        variant={
+                                                            site.is_active
+                                                                ? 'default'
+                                                                : 'secondary'
+                                                        }
+                                                    >
+                                                        {site.is_active
+                                                            ? 'Active'
+                                                            : 'Inactive'}
                                                     </Badge>
                                                 </CardTitle>
-                                                <CardDescription className="text-xs mt-0.5">
+                                                <CardDescription className="mt-0.5 text-xs">
                                                     <a
                                                         href={site.base_url}
                                                         target="_blank"
@@ -91,9 +114,15 @@ export default function AdminSitesIndex({ sites, flash }: PageProps) {
                                             </div>
                                         </div>
                                         <div className="flex gap-2">
-                                            <Button variant="outline" size="sm" asChild>
-                                                <Link href={`/admin/sites/${site.id}/edit`}>
-                                                    <Edit className="size-3.5 mr-1" />
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                asChild
+                                            >
+                                                <Link
+                                                    href={`/admin/sites/${site.id}/edit`}
+                                                >
+                                                    <Edit className="mr-1 size-3.5" />
                                                     Edit
                                                 </Link>
                                             </Button>
@@ -111,27 +140,52 @@ export default function AdminSitesIndex({ sites, flash }: PageProps) {
                                 <CardContent>
                                     <div className="grid grid-cols-3 gap-4 text-sm">
                                         <div>
-                                            <p className="text-muted-foreground text-xs">Products</p>
-                                            <p className="font-semibold">{site.products_count.toLocaleString()}</p>
+                                            <p className="text-xs text-muted-foreground">
+                                                Products
+                                            </p>
+                                            <p className="font-semibold">
+                                                {site.products_count.toLocaleString()}
+                                            </p>
                                         </div>
                                         <div>
-                                            <p className="text-muted-foreground text-xs">Categories</p>
-                                            <p className="font-semibold">{site.categories_count}</p>
+                                            <p className="text-xs text-muted-foreground">
+                                                Categories
+                                            </p>
+                                            <p className="font-semibold">
+                                                {site.categories_count}
+                                            </p>
                                         </div>
                                         <div>
-                                            <p className="text-muted-foreground text-xs">Crawl runs</p>
-                                            <p className="font-semibold">{site.crawl_runs_count}</p>
+                                            <p className="text-xs text-muted-foreground">
+                                                Crawl runs
+                                            </p>
+                                            <p className="font-semibold">
+                                                {site.crawl_runs_count}
+                                            </p>
                                         </div>
                                     </div>
 
                                     {site.scraper_config && (
                                         <div className="mt-3 rounded-md bg-muted/50 p-3">
-                                            <p className="text-xs font-medium text-muted-foreground mb-1">
+                                            <p className="mb-1 text-xs font-medium text-muted-foreground">
                                                 Category URLs
                                             </p>
-                                            {(site.scraper_config.category_urls as string[] | undefined)?.map((url) => (
-                                                <p key={url} className="font-mono text-xs truncate">{url}</p>
-                                            )) ?? <p className="text-xs text-muted-foreground italic">None configured</p>}
+                                            {(
+                                                site.scraper_config
+                                                    .category_urls as
+                                                    string[] | undefined
+                                            )?.map((url) => (
+                                                <p
+                                                    key={url}
+                                                    className="truncate font-mono text-xs"
+                                                >
+                                                    {url}
+                                                </p>
+                                            )) ?? (
+                                                <p className="text-xs text-muted-foreground italic">
+                                                    None configured
+                                                </p>
+                                            )}
                                         </div>
                                     )}
                                 </CardContent>

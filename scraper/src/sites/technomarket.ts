@@ -19,13 +19,6 @@ function slugFromPath(url: string): string {
     }
 }
 
-/**
- * Technomarket product URLs end with an 8-digit SKU: /peralni/neo-wm-sin601026-ng-09240876
- */
-function skuFromProductUrl(url: string): string | null {
-    return url.match(/-(\d{7,9})(?:[/?#]|$)/)?.[1] ?? null;
-}
-
 export const technomarketAdapter: SiteAdapter = {
     slug: 'technomarket',
 

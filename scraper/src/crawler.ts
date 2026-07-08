@@ -1,8 +1,10 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { chromium, type Browser, type Page } from 'playwright';
+import { chromium   } from 'playwright';
+import type {Browser, Page} from 'playwright';
 import { config, randomDelayMs, sleep } from './config.js';
-import { resolveAdapter, type SiteAdapter } from './sites/index.js';
+import { resolveAdapter  } from './sites/index.js';
+import type {SiteAdapter} from './sites/index.js';
 import type { CrawlError, CrawlLine, CrawlSummary, CrawledProduct } from './types.js';
 
 const MAX_RETRIES = 3;

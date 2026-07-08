@@ -31,7 +31,7 @@ describe('parser', () => {
 
         expect(firstBox).toBeTruthy();
 
-        const parsed = parseProductBoxHtml(firstBox!, categoryUrl);
+        const parsed = parseProductBoxHtml(firstBox!);
 
         expect(parsed).toMatchObject({
             technopolisSku: '510422',
@@ -43,7 +43,7 @@ describe('parser', () => {
     });
 
     it('parses multiple unique products from category fixture', () => {
-        const products = parseCategoryPageHtml(fixtureHtml, categoryUrl);
+        const products = parseCategoryPageHtml(fixtureHtml);
 
         expect(products.length).toBeGreaterThan(10);
 

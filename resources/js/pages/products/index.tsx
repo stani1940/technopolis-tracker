@@ -1,11 +1,24 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { ExternalLink, Package, RefreshCw, Search } from 'lucide-react';
-import { FormEvent, useState } from 'react';
+import type { FormEvent} from 'react';
+import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 
 type ProductItem = {
     id: number;
@@ -31,7 +44,12 @@ type SiteOption = {
 
 type PaginatedProducts = {
     data: ProductItem[];
-    links: Array<{ url: string | null; label: string; page: number | null; active: boolean }>;
+    links: Array<{
+        url: string | null;
+        label: string;
+        page: number | null;
+        active: boolean;
+    }>;
     current_page: number;
     last_page: number;
     total: number;
@@ -71,14 +89,22 @@ function formatPrice(value: string | null, suffix: string): string {
     return `${Number.parseFloat(value).toFixed(2)} ${suffix}`;
 }
 
-function ProductImage({ url, proxyUrl, name }: { url: string | null; proxyUrl: string | null; name: string }) {
+function ProductImage({
+    url,
+    proxyUrl,
+    name,
+}: {
+    url: string | null;
+    proxyUrl: string | null;
+    name: string;
+}) {
     // 0 = direct (no-referrer), 1 = proxy fallback, 2 = failed
     const [stage, setStage] = useState(0);
 
     const src = stage === 0 ? url : stage === 1 ? proxyUrl : null;
 
     if (!src) {
-        return <Package className="text-muted-foreground size-10" />;
+        return <Package className="size-10 text-muted-foreground" />;
     }
 
     return (
@@ -94,7 +120,9 @@ function ProductImage({ url, proxyUrl, name }: { url: string | null; proxyUrl: s
     );
 }
 
-function statusVariant(status: string): 'default' | 'secondary' | 'destructive' | 'outline' {
+function statusVariant(
+    status: string,
+): 'default' | 'secondary' | 'destructive' | 'outline' {
     switch (status) {
         case 'completed':
             return 'default';
@@ -116,7 +144,9 @@ export default function ProductsIndex({
 }: PageProps) {
     const [search, setSearch] = useState(filters.search);
 
-    function applyFilters(overrides: Record<string, string | number | null> = {}) {
+    function applyFilters(
+        overrides: Record<string, string | number | null> = {},
+    ) {
         const params: Record<string, string | number> = {};
         const merged = {
             search,
@@ -148,8 +178,9 @@ export default function ProductsIndex({
                     <h1 className="text-2xl font-semibold tracking-tight">
                         Price Tracker
                     </h1>
-                    <p className="text-muted-foreground text-sm">
-                        Проследени цени от {sites.map((s) => s.name).join(', ')}. Обнови с{' '}
+                    <p className="text-sm text-muted-foreground">
+                        Проследени цени от {sites.map((s) => s.name).join(', ')}
+                        . Обнови с{' '}
                         <code className="rounded bg-muted px-1.5 py-0.5 text-xs">
                             php artisan crawl:run --site=slug
                         </code>
@@ -159,15 +190,21 @@ export default function ProductsIndex({
                 <div className="grid gap-4 md:grid-cols-3">
                     <Card>
                         <CardHeader className="pb-2">
-                            <CardDescription>Products in database</CardDescription>
-                            <CardTitle className="text-3xl">{stats.totalProducts}</CardTitle>
+                            <CardDescription>
+                                Products in database
+                            </CardDescription>
+                            <CardTitle className="text-3xl">
+                                {stats.totalProducts}
+                            </CardTitle>
                         </CardHeader>
                     </Card>
 
                     <Card>
                         <CardHeader className="pb-2">
                             <CardDescription>Active products</CardDescription>
-                            <CardTitle className="text-3xl">{stats.activeProducts}</CardTitle>
+                            <CardTitle className="text-3xl">
+                                {stats.activeProducts}
+                            </CardTitle>
                         </CardHeader>
                     </Card>
 
@@ -180,7 +217,11 @@ export default function ProductsIndex({
                             <CardTitle className="flex items-center gap-2 text-lg">
                                 {crawlStatus ? (
                                     <>
-                                        <Badge variant={statusVariant(crawlStatus.status)}>
+                                        <Badge
+                                            variant={statusVariant(
+                                                crawlStatus.status,
+                                            )}
+                                        >
                                             {crawlStatus.status}
                                         </Badge>
                                         <span className="font-normal text-muted-foreground">
@@ -192,9 +233,11 @@ export default function ProductsIndex({
                                 )}
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className="text-muted-foreground text-sm">
+                        <CardContent className="text-sm text-muted-foreground">
                             {crawlStatus?.finishedAt
-                                ? new Date(crawlStatus.finishedAt).toLocaleString('bg-BG')
+                                ? new Date(
+                                      crawlStatus.finishedAt,
+                                  ).toLocaleString('bg-BG')
                                 : crawlStatus?.startedAt
                                   ? `Started ${new Date(crawlStatus.startedAt).toLocaleString('bg-BG')}`
                                   : 'Import or run a crawl to populate this page.'}
@@ -209,7 +252,7 @@ export default function ProductsIndex({
 
                 <form onSubmit={submitSearch} className="flex flex-wrap gap-2">
                     <div className="relative max-w-md flex-1">
-                        <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+                        <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                         <Input
                             value={search}
                             onChange={(event) => setSearch(event.target.value)}
@@ -218,9 +261,13 @@ export default function ProductsIndex({
                         />
                     </div>
                     <Select
-                        value={filters.site_id ? String(filters.site_id) : 'all'}
+                        value={
+                            filters.site_id ? String(filters.site_id) : 'all'
+                        }
                         onValueChange={(value) =>
-                            applyFilters({ site_id: value === 'all' ? null : Number(value) })
+                            applyFilters({
+                                site_id: value === 'all' ? null : Number(value),
+                            })
                         }
                     >
                         <SelectTrigger className="w-44">
@@ -229,7 +276,10 @@ export default function ProductsIndex({
                         <SelectContent>
                             <SelectItem value="all">Всички сайтове</SelectItem>
                             {sites.map((site) => (
-                                <SelectItem key={site.id} value={String(site.id)}>
+                                <SelectItem
+                                    key={site.id}
+                                    value={String(site.id)}
+                                >
                                     {site.name}
                                 </SelectItem>
                             ))}
@@ -244,8 +294,12 @@ export default function ProductsIndex({
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="name">По азбучен ред</SelectItem>
-                            <SelectItem value="price_asc">Цена: ниска → висока</SelectItem>
-                            <SelectItem value="price_desc">Цена: висока → ниска</SelectItem>
+                            <SelectItem value="price_asc">
+                                Цена: ниска → висока
+                            </SelectItem>
+                            <SelectItem value="price_desc">
+                                Цена: висока → ниска
+                            </SelectItem>
                         </SelectContent>
                     </Select>
                     <Button type="submit">Търси</Button>
@@ -254,10 +308,11 @@ export default function ProductsIndex({
                 {products.data.length === 0 ? (
                     <Card>
                         <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
-                            <Package className="text-muted-foreground size-10" />
+                            <Package className="size-10 text-muted-foreground" />
                             <p className="font-medium">No products yet</p>
-                            <p className="text-muted-foreground max-w-md text-sm">
-                                Import an existing crawl file or run the scraper:
+                            <p className="max-w-md text-sm text-muted-foreground">
+                                Import an existing crawl file or run the
+                                scraper:
                             </p>
                             <code className="rounded bg-muted px-3 py-2 text-xs">
                                 php artisan crawl:import crawl_output/*.ndjson
@@ -267,15 +322,28 @@ export default function ProductsIndex({
                 ) : (
                     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                         {products.data.map((product) => (
-                            <Card key={product.id} className="overflow-hidden py-0 transition-shadow hover:shadow-md">
-                                <Link href={`/products/${product.id}`} className="block">
-                                    <div className="bg-muted/30 flex h-44 items-center justify-center p-4">
-                                        <ProductImage url={product.imageUrl} proxyUrl={product.imageProxyUrl} name={product.name} />
+                            <Card
+                                key={product.id}
+                                className="overflow-hidden py-0 transition-shadow hover:shadow-md"
+                            >
+                                <Link
+                                    href={`/products/${product.id}`}
+                                    className="block"
+                                >
+                                    <div className="flex h-44 items-center justify-center bg-muted/30 p-4">
+                                        <ProductImage
+                                            url={product.imageUrl}
+                                            proxyUrl={product.imageProxyUrl}
+                                            name={product.name}
+                                        />
                                     </div>
                                 </Link>
                                 <CardHeader className="gap-2 px-4 pt-4 pb-2">
                                     <div className="flex items-start justify-between gap-2">
-                                        <Link href={`/products/${product.id}`} className="hover:underline">
+                                        <Link
+                                            href={`/products/${product.id}`}
+                                            className="hover:underline"
+                                        >
                                             <CardTitle className="line-clamp-2 text-base leading-snug">
                                                 {product.name}
                                             </CardTitle>
@@ -284,32 +352,53 @@ export default function ProductsIndex({
                                             href={product.url}
                                             target="_blank"
                                             rel="noreferrer"
-                                            className="text-muted-foreground hover:text-foreground shrink-0"
+                                            className="shrink-0 text-muted-foreground hover:text-foreground"
                                         >
                                             <ExternalLink className="size-4" />
                                         </a>
                                     </div>
                                     <CardDescription className="flex flex-wrap items-center gap-2">
                                         {product.site && (
-                                            <Badge variant="outline" className="text-xs font-normal">
+                                            <Badge
+                                                variant="outline"
+                                                className="text-xs font-normal"
+                                            >
                                                 {product.site.name}
                                             </Badge>
                                         )}
-                                        <span>SKU {product.technopolisSku}</span>
-                                        {product.brand && <span>• {product.brand}</span>}
+                                        <span>
+                                            SKU {product.technopolisSku}
+                                        </span>
+                                        {product.brand && (
+                                            <span>• {product.brand}</span>
+                                        )}
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent className="flex items-end justify-between px-4 pb-4">
                                     <div>
                                         <p className="text-lg font-semibold">
-                                            {formatPrice(product.currentPriceBgn, 'лв.')}
+                                            {formatPrice(
+                                                product.currentPriceBgn,
+                                                'лв.',
+                                            )}
                                         </p>
-                                        <p className="text-muted-foreground text-sm">
-                                            {formatPrice(product.currentPriceEur, '€')}
+                                        <p className="text-sm text-muted-foreground">
+                                            {formatPrice(
+                                                product.currentPriceEur,
+                                                '€',
+                                            )}
                                         </p>
                                     </div>
-                                    <Badge variant={product.inStock ? 'default' : 'secondary'}>
-                                        {product.inStock ? 'В наличност' : 'Изчерпан'}
+                                    <Badge
+                                        variant={
+                                            product.inStock
+                                                ? 'default'
+                                                : 'secondary'
+                                        }
+                                    >
+                                        {product.inStock
+                                            ? 'В наличност'
+                                            : 'Изчерпан'}
                                     </Badge>
                                 </CardContent>
                             </Card>
@@ -330,7 +419,9 @@ export default function ProductsIndex({
                                             ? 'bg-primary text-primary-foreground'
                                             : 'hover:bg-muted'
                                     }`}
-                                    dangerouslySetInnerHTML={{ __html: link.label }}
+                                    dangerouslySetInnerHTML={{
+                                        __html: link.label,
+                                    }}
                                 />
                             ) : null,
                         )}

@@ -1,7 +1,13 @@
 import { Head } from '@inertiajs/react';
 import { CheckCircle, Clock, XCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 
 type CrawlRun = {
     id: number;
@@ -31,7 +37,7 @@ function statusIcon(status: string) {
         case 'completed':
             return <CheckCircle className="size-4 text-emerald-500" />;
         case 'running':
-            return <Clock className="size-4 text-blue-500 animate-pulse" />;
+            return <Clock className="size-4 animate-pulse text-blue-500" />;
         case 'failed':
             return <XCircle className="size-4 text-destructive" />;
         default:
@@ -39,19 +45,29 @@ function statusIcon(status: string) {
     }
 }
 
-function statusVariant(status: string): 'default' | 'secondary' | 'destructive' | 'outline' {
+function statusVariant(
+    status: string,
+): 'default' | 'secondary' | 'destructive' | 'outline' {
     switch (status) {
-        case 'completed': return 'default';
-        case 'running': return 'secondary';
-        case 'failed': return 'destructive';
-        default: return 'outline';
+        case 'completed':
+            return 'default';
+        case 'running':
+            return 'secondary';
+        case 'failed':
+            return 'destructive';
+        default:
+            return 'outline';
     }
 }
 
 function fmtDuration(seconds: number | null): string {
-    if (seconds === null) return '—';
+    if (seconds === null) {
+return '—';
+}
+
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
+
     return m > 0 ? `${m}м ${s}с` : `${s}с`;
 }
 
@@ -62,10 +78,15 @@ export default function CrawlRunsIndex({ runs }: PageProps) {
 
             <div className="flex flex-col gap-6 p-4">
                 <div>
-                    <h1 className="text-2xl font-semibold tracking-tight">История на crawl-овете</h1>
-                    <p className="text-muted-foreground text-sm mt-1">
+                    <h1 className="text-2xl font-semibold tracking-tight">
+                        История на crawl-овете
+                    </h1>
+                    <p className="mt-1 text-sm text-muted-foreground">
                         Всички стартирани scraping сесии. Стартирай нов с{' '}
-                        <code className="rounded bg-muted px-1.5 py-0.5 text-xs">php artisan crawl:run</code>.
+                        <code className="rounded bg-muted px-1.5 py-0.5 text-xs">
+                            php artisan crawl:run
+                        </code>
+                        .
                     </p>
                 </div>
 
@@ -86,13 +107,19 @@ export default function CrawlRunsIndex({ runs }: PageProps) {
                                             <CardTitle className="text-base">
                                                 Crawl #{run.id}
                                             </CardTitle>
-                                            <Badge variant={statusVariant(run.status)}>
+                                            <Badge
+                                                variant={statusVariant(
+                                                    run.status,
+                                                )}
+                                            >
                                                 {run.status}
                                             </Badge>
                                         </div>
-                                        <span className="text-muted-foreground text-sm shrink-0">
+                                        <span className="shrink-0 text-sm text-muted-foreground">
                                             {run.startedAt
-                                                ? new Date(run.startedAt).toLocaleString('bg-BG')
+                                                ? new Date(
+                                                      run.startedAt,
+                                                  ).toLocaleString('bg-BG')
                                                 : '—'}
                                         </span>
                                     </div>
@@ -105,22 +132,40 @@ export default function CrawlRunsIndex({ runs }: PageProps) {
                                 <CardContent>
                                     <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm sm:grid-cols-4">
                                         <div>
-                                            <p className="text-muted-foreground text-xs">Намерени</p>
-                                            <p className="font-semibold">{run.productsFound}</p>
+                                            <p className="text-xs text-muted-foreground">
+                                                Намерени
+                                            </p>
+                                            <p className="font-semibold">
+                                                {run.productsFound}
+                                            </p>
                                         </div>
                                         <div>
-                                            <p className="text-muted-foreground text-xs">Страници</p>
-                                            <p className="font-semibold">{run.pagesCrawled}</p>
+                                            <p className="text-xs text-muted-foreground">
+                                                Страници
+                                            </p>
+                                            <p className="font-semibold">
+                                                {run.pagesCrawled}
+                                            </p>
                                         </div>
                                         <div>
-                                            <p className="text-muted-foreground text-xs">Грешки</p>
-                                            <p className={`font-semibold ${run.errorsCount > 0 ? 'text-destructive' : ''}`}>
+                                            <p className="text-xs text-muted-foreground">
+                                                Грешки
+                                            </p>
+                                            <p
+                                                className={`font-semibold ${run.errorsCount > 0 ? 'text-destructive' : ''}`}
+                                            >
                                                 {run.errorsCount}
                                             </p>
                                         </div>
                                         <div>
-                                            <p className="text-muted-foreground text-xs">Продължителност</p>
-                                            <p className="font-semibold">{fmtDuration(run.durationSeconds)}</p>
+                                            <p className="text-xs text-muted-foreground">
+                                                Продължителност
+                                            </p>
+                                            <p className="font-semibold">
+                                                {fmtDuration(
+                                                    run.durationSeconds,
+                                                )}
+                                            </p>
                                         </div>
                                     </div>
                                 </CardContent>

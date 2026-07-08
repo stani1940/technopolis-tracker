@@ -40,7 +40,7 @@ class CrawlRunCommand extends Command
             'category_url' => $categoryUrls,
         ]);
 
-        $this->info("Started crawl run #{$crawlRun->id}" . ($site ? " for site \"{$site->name}\"" : ''));
+        $this->info("Started crawl run #{$crawlRun->id}".($site ? " for site \"{$site->name}\"" : ''));
 
         $scraperPath = config('crawler.scraper_path');
         $outputPath = config('crawler.output_path');

@@ -1,9 +1,10 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { chromium } from 'playwright';
+import { chromium  } from 'playwright';
+import type {Page} from 'playwright';
 import { config } from './config.js';
 
-async function dismissCookieBanner(page: import('playwright').Page): Promise<void> {
+async function dismissCookieBanner(page: Page): Promise<void> {
     const acceptButton = page.getByRole('button', { name: /приемам|accept|съгласен/i }).first();
 
     if (await acceptButton.isVisible({ timeout: 5000 }).catch(() => false)) {

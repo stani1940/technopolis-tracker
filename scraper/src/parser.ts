@@ -93,7 +93,7 @@ export interface ParsedProductBox {
     inStock: boolean;
 }
 
-export function parseProductBoxHtml(boxHtml: string, categoryUrl: string): ParsedProductBox | null {
+export function parseProductBoxHtml(boxHtml: string): ParsedProductBox | null {
     const sku = boxHtml.match(/data-product-id="(\d+)"/)?.[1]
         ?? extractSkuFromUrl(boxHtml.match(/href="([^"]*\/p\/\d+)"/)?.[1] ?? '');
 
@@ -138,12 +138,12 @@ export function parseProductBoxHtml(boxHtml: string, categoryUrl: string): Parse
     };
 }
 
-export function parseCategoryPageHtml(html: string, categoryUrl: string): ParsedProductBox[] {
+export function parseCategoryPageHtml(html: string): ParsedProductBox[] {
     const boxRegex = /<te-product-box[^>]*data-product-id="\d+"[\s\S]*?<\/te-product-box>/g;
     const products = new Map<string, ParsedProductBox>();
 
     for (const match of html.matchAll(boxRegex)) {
-        const parsed = parseProductBoxHtml(match[0], categoryUrl);
+        const parsed = parseProductBoxHtml(match[0]);
 
         if (parsed) {
             products.set(parsed.technopolisSku, parsed);
