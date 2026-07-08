@@ -57,21 +57,33 @@ class Product extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Site, $this>
+     */
     public function site(): BelongsTo
     {
         return $this->belongsTo(Site::class);
     }
 
+    /**
+     * @return BelongsTo<Category, $this>
+     */
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
 
+    /**
+     * @return HasMany<PriceSnapshot, $this>
+     */
     public function priceSnapshots(): HasMany
     {
         return $this->hasMany(PriceSnapshot::class);
     }
 
+    /**
+     * @return HasOne<PriceSnapshot, $this>
+     */
     public function latestPriceSnapshot(): HasOne
     {
         return $this->hasOne(PriceSnapshot::class)->latestOfMany('captured_at');

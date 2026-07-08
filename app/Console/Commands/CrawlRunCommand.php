@@ -83,7 +83,7 @@ class CrawlRunCommand extends Command
             return self::FAILURE;
         }
 
-        $latestFile = collect(glob($outputPath.DIRECTORY_SEPARATOR.'*.ndjson'))
+        $latestFile = collect(glob($outputPath.DIRECTORY_SEPARATOR.'*.ndjson') ?: [])
             ->sortByDesc(fn (string $path) => filemtime($path))
             ->first();
 

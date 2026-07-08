@@ -73,7 +73,7 @@ class ProductController extends Controller
             'crawlStatus' => $latestCrawlRun ? [
                 'id' => $latestCrawlRun->id,
                 'status' => $latestCrawlRun->status,
-                'startedAt' => $latestCrawlRun->started_at?->toIso8601String(),
+                'startedAt' => $latestCrawlRun->started_at->toIso8601String(),
                 'finishedAt' => $latestCrawlRun->finished_at?->toIso8601String(),
                 'pagesCrawled' => $latestCrawlRun->pages_crawled,
                 'productsFound' => $latestCrawlRun->products_found,

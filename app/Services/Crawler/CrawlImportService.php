@@ -7,7 +7,7 @@ use App\Models\CrawlRun;
 use App\Models\PriceSnapshot;
 use App\Models\Product;
 use App\Models\Site;
-use Carbon\Carbon;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -118,8 +118,8 @@ class CrawlImportService
 
             $isNew = ! $product->exists;
 
+            // site_id is already set by firstOrNew's attribute array
             $product->fill([
-                'site_id' => $site?->id ?? $product->site_id,
                 'name' => (string) ($data['name'] ?? 'Unknown product'),
                 'slug' => (string) ($data['slug'] ?? Str::slug((string) ($data['name'] ?? 'product'))),
                 'url' => (string) ($data['url'] ?? ''),
@@ -207,7 +207,7 @@ class CrawlImportService
             return Carbon::parse($value);
         }
 
-        return now();
+        return Carbon::now();
     }
 
     /**

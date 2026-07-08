@@ -36,22 +36,35 @@ class Site extends Model
         ];
     }
 
+    /**
+     * @return HasMany<Category, $this>
+     */
     public function categories(): HasMany
     {
         return $this->hasMany(Category::class);
     }
 
+    /**
+     * @return HasMany<Product, $this>
+     */
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);
     }
 
+    /**
+     * @return HasMany<CrawlRun, $this>
+     */
     public function crawlRuns(): HasMany
     {
         return $this->hasMany(CrawlRun::class);
     }
 
-    /** Convenience: returns category_urls from scraper_config */
+    /**
+     * Convenience: returns category_urls from scraper_config.
+     *
+     * @return list<string>
+     */
     public function getCategoryUrls(): array
     {
         return $this->scraper_config['category_urls'] ?? [];

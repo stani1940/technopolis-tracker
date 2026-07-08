@@ -18,7 +18,7 @@ class CategoryFactory extends Factory
      */
     public function definition(): array
     {
-        $name = fake()->words(2, true);
+        $name = fake()->word().' '.fake()->word();
 
         return [
             'technopolis_category_id' => (string) fake()->unique()->numerify('cat-#####'),

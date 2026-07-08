@@ -18,7 +18,7 @@ class CrawlResultsController extends Controller
         ]);
 
         $crawlRun = isset($validated['run_id'])
-            ? CrawlRun::query()->find($validated['run_id'])
+            ? CrawlRun::query()->find((int) $validated['run_id'])
             : null;
 
         $stats = $importService->importPayload($validated['lines'], $crawlRun);

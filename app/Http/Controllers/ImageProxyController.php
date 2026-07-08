@@ -70,7 +70,7 @@ class ImageProxyController extends Controller
         Storage::disk(self::CACHE_DISK)->put($metaKey, json_encode([
             'content_type' => $contentType,
             'cached_at' => time(),
-        ]));
+        ], JSON_THROW_ON_ERROR));
 
         return response()->stream(function () use ($body) {
             echo $body;

@@ -20,7 +20,7 @@ class ProductFactory extends Factory
     public function definition(): array
     {
         $sku = fake()->unique()->numerify('######');
-        $name = fake()->words(4, true);
+        $name = fake()->word().' '.fake()->word().' '.fake()->word().' '.fake()->word();
 
         return [
             'technopolis_sku' => $sku,

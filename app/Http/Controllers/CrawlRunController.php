@@ -17,13 +17,13 @@ class CrawlRunController extends Controller
             ->through(fn (CrawlRun $run) => [
                 'id' => $run->id,
                 'status' => $run->status,
-                'startedAt' => $run->started_at?->toIso8601String(),
+                'startedAt' => $run->started_at->toIso8601String(),
                 'finishedAt' => $run->finished_at?->toIso8601String(),
                 'pagesCrawled' => $run->pages_crawled,
                 'productsFound' => $run->products_found,
                 'errorsCount' => $run->errors_count,
                 'categoryUrl' => $run->category_url,
-                'durationSeconds' => $run->started_at && $run->finished_at
+                'durationSeconds' => $run->finished_at
                     ? $run->started_at->diffInSeconds($run->finished_at)
                     : null,
             ]);
@@ -42,7 +42,7 @@ class CrawlRunController extends Controller
             ->map(fn (CrawlRun $run) => [
                 'id' => $run->id,
                 'status' => $run->status,
-                'startedAt' => $run->started_at?->toIso8601String(),
+                'startedAt' => $run->started_at->toIso8601String(),
                 'finishedAt' => $run->finished_at?->toIso8601String(),
                 'pagesCrawled' => $run->pages_crawled,
                 'productsFound' => $run->products_found,
